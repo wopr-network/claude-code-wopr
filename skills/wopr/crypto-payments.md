@@ -235,3 +235,9 @@ openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -d \
 - **Contract address per chain:** USDC on Base (`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`) ≠ USDC on Ethereum mainnet (`0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48`). Always verify.
 - **Gas on L2 is negligible:** ~$0.001 per tx on Base. Don't over-engineer gas estimation. On L1 Ethereum, gas matters — plan accordingly.
 - **platform-ui-core targets below ES2020:** Use `BigInt("1000000000000000000")` not `10n ** 18n`. BigInt literals require ES2020+.
+- **Deposit addresses stored lowercase:** `createStablecoinCharge` lowercases before INSERT. Settlers lookup with lowercased addresses from log topics. Never store checksummed addresses.
+- **Anvil fork mode hangs on `eth_getLogs` from Docker:** Topic-filtered log queries go upstream to Base RPC. Use local Anvil (no `--fork-url`) for E2E testing. Deploy mock ERC-20 with `forge create --broadcast` + `anvil_setCode`.
+- **Migration timestamps must be monotonic:** Drizzle uses `max(created_at)` to determine applied migrations. Non-monotonic timestamps cause it to skip later migrations.
+- **Payment method `rpc_url` must be set in DB:** Migration seeds methods but NOT RPC URLs. Set via admin panel or SQL after first deploy.
+- **`@sentry/node` required:** platform-core 1.28+ imports it. Add to paperclip-platform if missing.
+- **BTC `rpc_url` format:** `http://user:pass@host:port` — credentials parsed from URL, not separate env vars.
