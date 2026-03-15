@@ -56,10 +56,13 @@ digraph add_coin {
 ## Scenario 1: Add ERC-20 on Base (zero code)
 
 1. Go to `/admin/payment-methods`
-2. Add row: `id`, `type: erc20`, `token`, `chain: base`, `contract_address`, `decimals`, `enabled: true`
-3. Done. The EVM watcher already watches all enabled ERC-20 contracts.
+2. Add row: `id`, `type: erc20`, `token`, `chain: base`, `contract_address`, `decimals`, `rpc_url`, `xpub`, `enabled: true`
+3. Done. The watcher startup loop detects the new method on next refresh (60s) and creates a watcher.
+
+**All fields are in the admin panel** — `rpc_url`, `oracle_address`, `xpub`, `contract_address`, `confirmations`. No env vars, no deploys.
 
 **Gotcha:** Verify the contract address is correct (Base mainnet, not Ethereum mainnet). Wrong address = watcher silently misses transfers.
+**Gotcha:** Methods on the same chain share the same `rpc_url` and `xpub`. Duplicate values are fine — the watcher groups by chain internally.
 
 ## Scenario 2: Add ERC-20 on a New EVM Chain
 
@@ -135,6 +138,7 @@ Requires a fully custom integration:
 | `enabled` | Runtime toggle |
 | `rpc_url` | Chain node RPC endpoint (watcher reads this at startup) |
 | `oracle_address` | Chainlink feed contract (null for stablecoins — 1:1 USD) |
+| `xpub` | HD wallet extended public key for deposit address derivation |
 | `confirmations` | Required block confirmations |
 
 **Store:** `DrizzlePaymentMethodStore` implements `IPaymentMethodStore`
